@@ -5,8 +5,6 @@
 The goal of this project is to provide a guided walkthrough for ArgoCD. We will walkthrough the base ArgoCD application and then inspect an additional utility that provides more deployment options (ie, canary and blue/green releases). Many of the documentation here is already provided within these resources:
 
 - [Main ArgoCD Project](https://argoproj.github.io/argo-cd/)
-- [ArgoCD Rollouts](https://github.com/argoproj/argo-rollouts)
-- [ArgoCD Rollouts Demo Application](https://github.com/argoproj/rollouts-demo)
 
 ### Pre-requisite
 
@@ -62,7 +60,7 @@ ArgoCD uses the [GitOps](https://www.gitops.tech/) methodology for continuous de
 
 <img src="images/argocd_gui_inspect.png" width="700"/>
 ```
-    ➜  datou-k8-argocd git:(main) ✗ argocd app get datou
+    > argocd app get datou
     Name:               datou
     Project:            default
     Server:             https://kubernetes.default.svc
@@ -117,7 +115,7 @@ data:
 ```
 5. NOTE: when logging in, you will need to re-write your URL to `http` for this local example since the DEX handshake automatically uses `https`. 
 ```
-https://localhost:8080/auth/login?return_url=https%3A%2F%2Flocalhost%3A8080%2Fapplications
-                                                 ^
-                                                 # change to http
+    https://localhost:8080/auth/login?return_url=https%3A%2F%2Flocalhost%3A8080%2Fapplications
+                                                     ^
+                                                     # change to http
 ```
