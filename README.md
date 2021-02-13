@@ -59,6 +59,7 @@ ArgoCD uses the [GitOps](https://www.gitops.tech/) methodology for continuous de
 2. Next, inspect the application deployment. Click around to see the resources.
 
 <img src="images/argocd_gui_inspect.png" width="700"/>
+
 ```
     > argocd app get datou
     Name:               datou
@@ -73,11 +74,6 @@ ArgoCD uses the [GitOps](https://www.gitops.tech/) methodology for continuous de
     Sync Policy:        Automated
     Sync Status:        Synced to  (a7f359e)
     Health Status:      Healthy
-
-    GROUP  KIND            NAMESPACE  NAME                      STATUS  HEALTH   HOOK  MESSAGE
-        ServiceAccount  default    datou-example-deployment  Synced                 serviceaccount/datou-example-deployment created
-        Service         default    datou-example-deployment  Synced  Healthy        service/datou-example-deployment created
-    apps   Deployment      default    datou-example-deployment  Synced  Healthy        deployment.apps/datou-example-deployment created
 ```
 
 ### [Optional] Github Authentication
@@ -95,6 +91,7 @@ Connecting the authentication via Github SSO. For this section, you will need a 
 <img src="images/github_oauth_secret_create.png" width="500"/>
 
 3. Edit the argocd configmap to configure oauth - `kubectl edit configmap argocd-cm -n argocd`
+
 4. Modify
 
 ```
