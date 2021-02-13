@@ -96,6 +96,7 @@ Connecting the authentication via Github SSO. For this section, you will need a 
 
 3. Edit the argocd configmap to configure oauth - `kubectl edit configmap argocd-cm -n argocd`
 4. Modify
+
 ```
 data:
   url: http://localhost:8080
@@ -113,7 +114,9 @@ data:
           #- name: your-github-org
 
 ```
+
 5. NOTE: when logging in, you will need to re-write your URL to `http` for this local example since the DEX handshake automatically uses `https`. 
+
 ```
     https://localhost:8080/auth/login?return_url=https%3A%2F%2Flocalhost%3A8080%2Fapplications
                                                      ^
