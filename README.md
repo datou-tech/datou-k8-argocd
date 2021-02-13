@@ -2,7 +2,7 @@
 ---
 
 ### Summary
-The goal of this project is to provide a guided walkthrough for ArgoCD. We will walkthrough the base ArgoCD application and then inspect an additional utility that provides more deployment options (ie, canary and blue/green releases). Many of the documentation here is already provided within these resources:
+The goal of this project is to provide a guided walkthrough for ArgoCD. We will walkthrough the base ArgoCD application. Many of the documentation here is already provided within these resources:
 
 - [Main ArgoCD Project](https://argoproj.github.io/argo-cd/)
 
