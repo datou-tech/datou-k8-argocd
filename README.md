@@ -8,49 +8,116 @@ The goal of this project is to provide a guided walkthrough for ArgoCD. We will 
 - [ArgoCD Rollouts](https://github.com/argoproj/argo-rollouts)
 - [ArgoCD Rollouts Demo Application](https://github.com/argoproj/rollouts-demo)
 
-If you are following the datou series - you can get instructions for setting up a local cluster [here](https://github.com/datou-tech/datou-k8).
+### Pre-requisite
 
-## ArgoCD
----
+You will need a cluster to run the steps in this project. If you are following the datou series, you will need these projects completed.
+
+- datou-k8 - [set up a local cluster](https://github.com/datou-tech/datou-k8)
+- datou-k8-helm - [understand helm charts](https://github.com/datou-tech/datou-k8-helm)
+- datou-k8-docker - [understand packaging applications](https://github.com/datou-tech/datou-docker)
 
 ### Install ArgoCD
 
 1. Install ArgoCD
-1. Install ServiceAccount
-1. SSO with Github
+    ```
+    kubectl create namespace argocd
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    ```
+
+### ArgoCD Server/GUI
+
+ArgoCD offers a GUI and a CLI for management and configuration.
+
+1. Inspect the ArgoCD resources - `kubectl get po -n argocd`
+1. Open connection via Port Forwarding - `kubectl port-forward svc/argocd-server -n argocd 8080:443`
+1. Open the GUI at `http://localhost:8080`
+1. Default user is `admin` and password is the name of the pod from step 1 (ie, `argocd-server-56ffccb4cd-mthm6`)
+
 ### ArgoCD CLI
 
-1. How to install
-1. How to login
-1. Update Password
-### ArgoCD GUI
+1. Install ArgoCD CLI - `brew install argocd`
+1. How to login - `argocd login localhost:8080`
+1. Update Password - `argocd account update-password`
+1. Read up on more argocd CLI resources and commands [here](https://argoproj.github.io/argo-cd/user-guide/commands/argocd/)
 
-1. How to connect
+### Deploying an Application
 
-### Deploy an Application
+ArgoCD uses the [GitOps](https://www.gitops.tech/) methodology for continuous delivery. What you declare in Git is what ArgoCD will sync into your cluster. Each step will illustrate the GUI implementation with the accompanying CLI command.
 
-1. Deploying your first application. CLI
-1. Deploying your first application. GUI
+1. First, we will declare an ArgoCD `Application` which wraps a native K8 deployment in a Custom Resource Definition (CRD). (See example-deployment folder)
 
-## ArgoCD Rollouts
----
-### Install ArgoCD Rollouts
+<img src="images/argocd_gui_app_create.png" width="700"/>
 
-1. Install ArgoCD Rollouts
-1. Install Kubectl AgoCD Rollouts plugin
+```
+    # CLI equivalent command to create
+    argocd app create datou \
+    --repo https://github.com/datou-tech/datou-k8-argocd.git \
+    --path example-deployment \
+    --dest-server https://kubernetes.default.svc \
+    --dest-namespace default \
+    --sync-policy auto
+```
 
-### Deploy Rollouts Demo
+2. Next, inspect the application deployment. Click around to see the resources.
 
-1. Deploy the Demo Application
+<img src="images/argocd_gui_inspect.png" width="700"/>
+```
+    ➜  datou-k8-argocd git:(main) ✗ argocd app get datou
+    Name:               datou
+    Project:            default
+    Server:             https://kubernetes.default.svc
+    Namespace:          default
+    URL:                https://localhost:8080/applications/datou
+    Repo:               https://github.com/datou-tech/datou-k8-argocd.git
+    Target:
+    Path:               example-deployment
+    SyncWindow:         Sync Allowed
+    Sync Policy:        Automated
+    Sync Status:        Synced to  (a7f359e)
+    Health Status:      Healthy
 
-### Canary Deployments
+    GROUP  KIND            NAMESPACE  NAME                      STATUS  HEALTH   HOOK  MESSAGE
+        ServiceAccount  default    datou-example-deployment  Synced                 serviceaccount/datou-example-deployment created
+        Service         default    datou-example-deployment  Synced  Healthy        service/datou-example-deployment created
+    apps   Deployment      default    datou-example-deployment  Synced  Healthy        deployment.apps/datou-example-deployment created
+```
 
-1. Deploy canary resources
+### [Optional] Github Authentication
 
-### Blue/Green 
+Connecting the authentication via Github SSO. For this section, you will need a Github Account. These steps are already outlined [here](https://argoproj.github.io/argo-cd/operator-manual/user-management/#dex) but hopefully these steps will simplify it for our specific local cluster setup.
 
-1. Deploy blue/green resources
+1. Create Github OAuth Application
+    - Login to Github.com
+    - Settings > Developer Settings > OAuth Apps
 
-### Istio
+<img src="images/github_oauth_app_create.png" width="500"/>
 
-1. Upcoming datou-istio project that will tie into deployment strategies with ArgoCD Rollouts
+2. Create a new client secret
+
+<img src="images/github_oauth_secret_create.png" width="500"/>
+
+3. Edit the argocd configmap to configure oauth - `kubectl edit configmap argocd-cm -n argocd`
+4. Modify
+```
+data:
+  url: http://localhost:8080
+
+  dex.config: |
+    connectors:
+      # GitHub example
+      - type: github
+        id: github
+        name: GitHub
+        config:
+          clientID: <CLIENT_ID>
+          clientSecret: <CLIENT_SECRET>
+          #orgs:
+          #- name: your-github-org
+
+```
+5. NOTE: when logging in, you will need to re-write your URL to `http` for this local example since the DEX handshake automatically uses `https`. 
+```
+https://localhost:8080/auth/login?return_url=https%3A%2F%2Flocalhost%3A8080%2Fapplications
+                                                 ^
+                                                 # change to http
+```
