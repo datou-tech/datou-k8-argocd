@@ -92,7 +92,7 @@ Connecting the authentication via Github SSO. For this section, you will need a 
 
 3. Edit the argocd configmap to configure oauth - `kubectl edit configmap argocd-cm -n argocd`
 
-4. Modify
+4. Modify auth configmap
 
 ```
 data:
@@ -112,7 +112,16 @@ data:
 
 ```
 
-5. NOTE: when logging in, you will need to re-write your URL to `http` for this local example since the DEX handshake automatically uses `https`. 
+5. Add policy to ArgoCD rbac configmap - `kubectl edit configmap argocd-rbac-cm -n argocd`
+
+```
+data:
+  policy.default: role:admin
+```
+NOTE: Reference the [RBAC policy documentation](https://argoproj.github.io/argo-cd/operator-manual/rbac/) to tune the permissions
+
+
+6. NOTE: when logging in, you will need to re-write your URL to `http` for this local example since the DEX handshake automatically uses `https`. 
 
 ```
     https://localhost:8080/auth/login?return_url=https%3A%2F%2Flocalhost%3A8080%2Fapplications
